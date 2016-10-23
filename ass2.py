@@ -26,9 +26,6 @@ def tokenise(tokenstring):
       r'\b[a-zA-Z]+|\'?[a-zA-Z]+|[^ ]+',
     tokenstring)
 
-token = tokenise('so... I don\'t know how you plan to manage it???')
-print token
-
 grammar=parse_grammar("""
 S -> NP VP
 NP -> Det Nom | Nom | NP PP
