@@ -122,12 +122,9 @@ class CKY:
         if self.grammar.start() in self.matrix[0][self.n-1].labels():
             # Calculating the number of successful analyses
             Analyses_n = 0
-            for k in self.matrix:
-                for i in k:
-                    if i != None and self.grammar.start() in i.labels():
-                        for j in i.labels():
-                            if j == self.grammar.start():
-                                Analyses_n += 1
+            for i in self.matrix[0][self.n-1].labels():
+                if i == self.grammar.start():
+                    Analyses_n += 1
             return Analyses_n
         else:
             return False
