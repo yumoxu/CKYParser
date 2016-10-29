@@ -34,17 +34,17 @@ def CKY_pprint(self,cell_width=8):
                    for c in range(1,self.n)))
     for r in range(self.n-1):
         if r!=0:
-            print row_div
+            print (row_div)
         mrh=row_max_height[r]
         for l in range(mrh):
-            print row_index_fmt%(str(r) if l==mrh/2 else ''),
+            print (row_index_fmt%(str(r) if l==mrh/2 else '')),
             row_strs=['' for c in range(r)]
             row_strs+=[wtp(l,print_matrix[r][c],mrh) for c in range(self.n-(r+1))]
-            print row_fmt%tuple(row_strs)
+            print (row_fmt%tuple(row_strs))
 
 def CKY_log(self,message,*args,**kwargs):
     if self.verbose:
-        print ' '*kwargs.get('indent',0)+(message%args)
+        print (' '*kwargs.get('indent',0)+(message%args))
 
 # A utility function
 def wtp(l,subrows,maxrows):
