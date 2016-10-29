@@ -12,8 +12,8 @@ CFGEditor._TOKEN_RE=re.compile(u"->|u?'"+TOKEN+u"'|u?\""+TOKEN+u"\"|\\w+|("+ARRO
 CFGEditor._PRODUCTION_RE=re.compile(ur"(^\s*\w+\s*)" +
                   ur"(->|("+ARROW+"))\s*" +
                   ur"((u?'"+TOKEN+"'|u?\""+TOKEN+"\"|''|\"\"|\w+|\|)\s*)*$")
-nltk.grammar._TERMINAL_RE = re.compile(ur'( u?"[^"]+" | u?\'[^\']+\' ) \s*', re.VERBOSE)
-nltk.grammar._ARROR_RE = re.compile(ur'\s* (->|'+ARROW+') \s*', re.VERBOSE)
+nltk.grammar._TERMINAL_RE = re.compile(r'( u?"[^"]+" | u?\'[^\']+\' ) \s*', re.VERBOSE)
+nltk.grammar._ARROR_RE = re.compile(r'\s* (->|'+ARROW+') \s*', re.VERBOSE)
 
 from nltk.grammar import _TERMINAL_RE
 
