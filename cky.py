@@ -1,4 +1,5 @@
-import sys,re
+import sys
+import re
 import nltk
 from collections import defaultdict
 import cfg_fix

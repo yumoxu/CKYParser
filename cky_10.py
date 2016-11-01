@@ -8,6 +8,7 @@ from pprint import pprint
 #  to make this file easier to read
 from cky_print import CKY_pprint, CKY_log, Cell__str__, Cell_str, Cell_log
 
+
 class CKY:
     """An implementation of the Cocke-Kasami-Younger (bottom-up) CFG recogniser.
 
@@ -185,6 +186,9 @@ class CKY:
                         # add the symbol and update this cell
                         cell.addLabel(s,1)
 
+    def firstTree(self):
+        pass
+
 # helper methods from cky_print
 CKY.pprint=CKY_pprint
 CKY.log=CKY_log
@@ -208,7 +212,6 @@ class Cell:
         return self._labels
 
     def unaryUpdate(self,symbol,depth=0,recursive=False):
-        '''Q3: add docstring here, and add comments throughout'''
         '''
         Function: Updating a CKY matrix through unary rules
         How this function works:

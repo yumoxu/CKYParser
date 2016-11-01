@@ -80,7 +80,7 @@ grammar2=parse_grammar([
 "VPio -> Vdt NP",
 "PP -> Prep NP",
 "Det -> 'a' | 'the'",
-"Nmp -> 'salad' | 'mushrooms'", 
+"Nmp -> 'salad' | 'mushrooms'",
 "Nsc -> 'book' | 'fork' | 'flight' | 'salad' | 'drawing'",
 "Prep -> 'to' | 'with'",
 "Vi -> 'ate'",
@@ -125,7 +125,4 @@ for s in ["John gave a book to Mary.",
 #     print s, chart2.parse(tokenise(s))
 #     for tree in chart2.all_trees():
 #         print tree.pprint()
-
-
-
 
