@@ -1,5 +1,6 @@
 import sys,re
 import nltk
+from nltk import Tree
 from collections import defaultdict
 import cfg_fix
 from cfg_fix import parse_grammar, CFG
@@ -7,7 +8,7 @@ from pprint import pprint
 # The printing and tracing functionality is in a separate file in order
 #  to make this file easier to read
 from cky_print import CKY_pprint, CKY_log, Cell__str__, Cell_str, Cell_log
-
+import test
 
 class CKY:
     """An implementation of the Cocke-Kasami-Younger (bottom-up) CFG recogniser.
@@ -76,7 +77,7 @@ class CKY:
                 # add binary rules
                 self.binary[rhs].append(lhs)
 
-    def recognise(self,tokens,verbose=False):
+    def parse(self,tokens,verbose=False):
         '''Q4: replace/expand this docstring, and add comments throughout
         Initialise a matrix from the sentence,
         then run the CKY algorithm over it
@@ -120,11 +121,13 @@ class CKY:
         # Adding all the binary rules
         self.binaryScan()
         # Replace the line below for Q6
-        if self.grammar.start() in self.matrix[0][self.n-1].labels():
+        # collect final symbols from final labels
+        final_symbols = [label.symbol() for label in self.matrix[0][self.n-1].labels()]
+        if self.grammar.start() in final_symbols:
             # Calculating the number of successful analyses
             Analyses_n = 0
-            for i in self.matrix[0][self.n-1].labels():
-                if i == self.grammar.start():
+            for symbol in final_symbols:
+                if symbol == self.grammar.start():
                     Analyses_n += 1
             return Analyses_n
         else:
@@ -146,7 +149,7 @@ class CKY:
         for r in range(self.n-1):
             cell=self.matrix[r][r+1]
             word=self.words[r]
-            cell.addLabel(word)
+            cell.addLabel(Label(word))  # leaf node with no child
 
     def binaryScan(self):
         '''The heart of the implementation:
@@ -159,7 +162,6 @@ class CKY:
                     self.maybeBuild(start, mid, end)
 
     def maybeBuild(self, start, mid, end):
-        '''Q4: add docstring here, and add comments throughout'''
         '''
         Function: Filling matrix through CKY algorithm and binary rules
         How this function works:
@@ -177,21 +179,83 @@ class CKY:
         '''
         self.log("%s--%s--%s:",start, mid, end)
         cell=self.matrix[start][end]
-        for s1 in self.matrix[start][mid].labels():
-            for s2 in self.matrix[mid][end].labels():
+        for s1 in self.matrix[start][mid].labels():  # left child label
+            for s2 in self.matrix[mid][end].labels():  # right child label
                 # find the binary rules like s -> s1 s2
-                if (s1,s2) in self.binary:
-                    for s in self.binary[(s1,s2)]:
-                        self.log("%s -> %s %s", s, s1, s2, indent=1)
+                s1_symbol = s1.symbol()
+                s2_symbol = s2.symbol()
+                if (s1_symbol,s2_symbol) in self.binary:
+                # if (s1,s2) in self.binary:
+                    for s_symbol in self.binary[(s1_symbol,s2_symbol)]:
+                        self.log("%s -> %s %s", s_symbol, s1_symbol, s2_symbol, indent=1)
                         # add the symbol and update this cell
-                        cell.addLabel(s,1)
+                        label = Label(s_symbol,s1,s2)
+                        cell.addLabel(label,1)
 
     def firstTree(self):
-        pass
+        '''
+            front traverse the tree to get the string for nltk.Tree generation.
+
+        :return: the first tree if the parsing is successful or None.
+        '''
+        symbols = []
+        final_label = self.matrix[0][self.n-1].labels()[0]
+        if self.grammar.start() == final_label.symbol():
+            stack = []
+            node = final_label
+            while node or stack:
+                while node:
+                    if node.lchild() or node.symbol() == '.':
+                        symbols.append('(')
+                        symbols.append(str(node.symbol()))
+                        if node.lchild():
+                            stack.append(node)
+                        else:
+                            symbols.append(')')
+                    # leaf node
+                    else:
+                        symbols.append(' ')
+                        symbols.append(str(node.symbol()))
+                    node = node.lchild()
+
+                # the leftest child has been processed, now comes to the right child of the latest node
+                if not stack:
+                    break
+                node = stack[-1]
+
+                # loop to find nodes with two children
+                # for nodes with only one child, just add ')' to symbols and skip it
+                while not node.rchild():  # one child
+                    symbols.append(')')
+                    stack.pop()
+                    if not stack:
+                        break
+                    node = stack[-1]
+
+                # loop to find nodes that has not been checked
+                # for checked nodes, just add ')' to symbols and skip it
+                while node.is_rchild_checked():
+                    symbols.append(')')  # end the subtree
+                    stack.pop()
+                    if not stack:
+                        break  # if break from here, the node is also a checked one
+                    node = stack[-1]
+
+                # break from the last loop, indicating the node is the last node 'S'
+                if node.is_rchild_checked():
+                    break
+                # check its right child
+                else:
+                    node.set_rchild_checked(True)
+                    node = node.rchild()
+
+        print ' '.join(symbols)
+
 
 # helper methods from cky_print
 CKY.pprint=CKY_pprint
 CKY.log=CKY_log
+
 
 class Cell:
     '''A cell in a CKY matrix'''
@@ -202,8 +266,16 @@ class Cell:
         self._labels=[]
 
     def addLabel(self,label,depth=0,recursive=False):
-        # addLabel does nothing if the same label has exists
-        if label not in self.labels():
+        '''
+            Add given label to the cell.
+
+        :param label: instance of Label class.
+        :param depth: the depth of recurse.
+        :param recursive: whether the label is recursive.
+        :return:
+        '''
+        # do nothing if the same label has already existed.
+        if label.symbol() not in [l.symbol() for l in self.labels()]:
             self._labels.append(label)
             # Call unaryUpdate to update check unary rules and add new label
             self.unaryUpdate(label,depth,recursive)
@@ -211,7 +283,7 @@ class Cell:
     def labels(self):
         return self._labels
 
-    def unaryUpdate(self,symbol,depth=0,recursive=False):
+    def unaryUpdate(self,label,depth=0,recursive=False):
         '''
         Function: Updating a CKY matrix through unary rules
         How this function works:
@@ -227,18 +299,22 @@ class Cell:
         :type recursive: boolean
         :param recursive: a boolean telling us whether we should recurse this function
         '''
+        symbol = label.symbol()
         if not recursive:
             self.log(str(symbol),indent=depth)
         if symbol in self.matrix.unary:
             for parent in self.matrix.unary[symbol]:
                 # depth + 1, because of adding an unary rule
                 self.matrix.log("%s -> %s",parent,symbol,indent=depth+1)
-                self.addLabel(parent,depth+1,True)
+                # if unary, regard the only child as the left child
+                parent_label = Label(parent, lchild=label)
+                self.addLabel(parent_label,depth+1,True)
 
 # helper methods from cky_print
 Cell.__str__=Cell__str__
 Cell.str=Cell_str
 Cell.log=Cell_log
+
 
 class Label:
     '''A label for a substring in a CKY chart Cell
@@ -246,14 +322,18 @@ class Label:
     Includes a terminal or non-terminal symbol, possibly other
     information.  Add more to this docstring when you start using this
     class'''
-    def __init__(self,symbol,
-                 # Fill in here, if more needed
-                 ):
+    def __init__(self,symbol,lchild=None,rchild=None,is_rchild_checked=False):
         '''Create a label from a symbol and ...
         :type symbol: a string (for terminals) or an nltk.grammar.Nonterminal
         :param symbol: a terminal or non-terminal
+        :param lchild: the left child
+        :param rchild: the right child
         '''
         self._symbol=symbol
+        self._lchild=lchild
+        self._rchild=rchild
+        self._is_rchild_checked=is_rchild_checked
+
         # augment as appropriate, with comments
 
     def __str__(self):
@@ -263,8 +343,26 @@ class Label:
         '''How to test for equality -- other must be a label,
         and symbols have to be equal'''
         assert isinstance(other,Label)
-        return self._symbol==other._symbol
+        return (self._symbol==other._symbol and self._lchild._symbol == other._lchild._symbol and self._rchild._symbol==other._rchild._symbol)
 
     def symbol(self):
         return self._symbol
     # Add more methods as required, with docstring and comments
+
+    def lchild(self):
+        return self._lchild
+
+    def rchild(self):
+        return self._rchild
+
+    def set_lchild(self, lchild):
+        self._lchild = lchild
+
+    def set_rchild(self, rchild):
+        self._rchild = rchild
+
+    def is_rchild_checked(self):
+        return self._is_rchild_checked
+
+    def set_rchild_checked(self, is_rchild_checked):
+        self._is_rchild_checked = is_rchild_checked
