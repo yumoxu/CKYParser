@@ -1,6 +1,5 @@
 import sys,re
 import nltk
-from nltk import Tree
 from collections import defaultdict
 import cfg_fix
 from cfg_fix import parse_grammar, CFG
@@ -249,7 +248,9 @@ class CKY:
                     node.set_rchild_checked(True)
                     node = node.rchild()
 
-        print ' '.join(symbols)
+        tree_str = ' '.join(symbols)
+        print tree_str
+        return nltk.Tree.fromstring(tree_str)
 
 
 # helper methods from cky_print
