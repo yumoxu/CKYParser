@@ -9,9 +9,9 @@ def tokenise(tokenstring):
 
   We treat punctuation as
   separate tokens, and split contractions into their parts.
-  
+
   So for example "I'm leaving." --> ["I","'m","leaving","."]
-  
+
   :type tokenstring: str
   :param tokenstring the string to be tokenised
   :rtype: list(str)
@@ -125,4 +125,3 @@ for s in ["John gave a book to Mary.",
 #     print s, chart2.parse(tokenise(s))
 #     for tree in chart2.all_trees():
 #         print tree.pprint()
-
