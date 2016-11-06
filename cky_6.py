@@ -37,29 +37,29 @@ class CKY:
         self.buildIndices(grammar.productions())
 
     def buildIndices(self,productions):
-        '''Q2: add docstring here, and add comments throughout'''
-        # Function: Splitting rules into unary ruls and binary rules, then storing these rules in different
-        # defaultdicts( one type of class, like dictionary)
-        # For example: 1.S -> NP VP  2.VP -> V
-        # We store 1 in a defaultdicts called binary and store 2 in a defaultdicts called unary
+        '''Q2: add docstring here, and add comments throughout
+        Function: Splitting rules into unary ruls and binary rules, then storing these rules in different
+        defaultdicts( one type of class, like dictionary)
+        For example: 1.S -> NP VP  2.VP -> V
+        We store 1 in a defaultdicts called binary and store 2 in a defaultdicts called unary
 
-        # How this function works:
-        # Tips: we use productions to store rules
-        # At first, it creates two defaultdicts( one type of class, like dictionary), one for productions which
-        # have only one nonterminal or terminal in the right side(unary rules) and another for productions having
-        # two nonterminals or terminals.(binary rules)
-        # Secondly, it uses a loop to get each production and gets objects in the left-hand side and in the right-hand
-        # side of this Production respectively.
-        # Finally, after correcting the number of objects in the right-hand side, if the number of nonterminals
-        # and terminals in the right-hand side of this production is 1, this function stores the nonterminal in the
-        # left-hand side as the value and the nonterminal or terminal in the right-hand side as the key in the
-        # unary defaultdict. If the number is 2, this function stores the nonterminal in the left-hand side as
-        # the value and the nonterminals or terminals in the right-hand side as the key in the binary.
+        How this function works:
+        Tips: we use defaultdict to store rules
+        At first, it creates two defaultdicts( one type of class, like dictionary), one for productions which
+        have only one nonterminal or terminal in the right side(unary rules) and another for productions having
+        two nonterminals or terminals.(binary rules)
+        Secondly, it uses a loop to get each production and gets objects in the left-hand side and in the right-hand
+        side of this Production respectively.
+        Finally, after correcting the number of objects in the right-hand side, if the number of nonterminals
+        and terminals in the right-hand side of this production is 1, this function stores the nonterminal in the
+        left-hand side as the value and the nonterminal or terminal in the right-hand side as the key in the
+        unary defaultdict. If the number is 2, this function stores the nonterminal in the left-hand side as
+        the value and the nonterminals or terminals in the right-hand side as the key in the binary.
 
-        '''
         :type productions: nltk.grammar.Production, as fixed by cfg_fix
         :param productions: the productions to be split and stored in a new way
         '''
+
 
         self.unary=defaultdict(list)
         self.binary=defaultdict(list)
@@ -79,8 +79,8 @@ class CKY:
         '''Q4: replace/expand this docstring, and add comments throughout
         Initialise a matrix from the sentence,
         then run the CKY algorithm over it
-        Optional verbose argument controls debugging output, defaults to False '''
-        '''
+        Optional verbose argument controls debugging output, defaults to False
+
         At first, we initialise a matrix which contains cells in the right of the diagonal.
         Secondly, we fill all matrix's diagonal cells for each words through function unaryFill.
         Then we use CKY algorithm to fill some cells which attach the condition in the right of the diagonal.
@@ -88,9 +88,13 @@ class CKY:
 
         :type tokens: str
         :param tokens: a string to be used to build a matrix through CKY algorithm
+        :type verbose: bool
+        :param verbose: a bool to controls debugging output
+
         :rtype self.grammar.start(): str
         :param self.grammar.start(): the start symbol of the grammar
         '''
+
         self.verbose=verbose
         self.words = tokens
         self.n = len(self.words)+1
@@ -130,18 +134,16 @@ class CKY:
             return False
 
     def unaryFill(self):
-        '''Q3: add docstring here, and add comments throughout'''
-        '''
+        '''Q3: add docstring here, and add comments throughout
         Function: Filling matrix's diagonal cells for each words
 
         How this function works:
-        For each words, the location of the initial cell is on the diagonal, so we firstly get the word and the cell
+        For each word, the location of the initial cell is on the diagonal, so we firstly get the word and the cell
         which is link to this word.
         Then we add this word into this cell.
         Finally, we update the content of this cell( Completing all the relative unary rules ).
-
-
         '''
+
         for r in range(self.n-1):
             cell=self.matrix[r][r+1]
             word=self.words[r]
@@ -159,8 +161,7 @@ class CKY:
                     self.maybeBuild(start, mid, end)
 
     def maybeBuild(self, start, mid, end):
-        '''Q4: add docstring here, and add comments throughout'''
-        '''
+        '''Q4: add docstring here, and add comments throughout
         Function: Filling matrix through CKY algorithm and binary rules
         How this function works:
         When we get integer start, mid and end, it means we get two cells, cell(start, mid) and cell(mid, end)
@@ -175,6 +176,7 @@ class CKY:
         :param mid: the end index of the first cell and the start index of the second cell
         :param end: the end index of the second cell
         '''
+
         self.log("%s--%s--%s:",start, mid, end)
         cell=self.matrix[start][end]
         for s1 in self.matrix[start][mid].labels():
@@ -207,8 +209,7 @@ class Cell:
         return self._labels
 
     def unaryUpdate(self,symbol,depth=0,recursive=False):
-        '''Q3: add docstring here, and add comments throughout'''
-        '''
+        '''Q3: add docstring here, and add comments throughout
         Function: Updating a CKY matrix through unary rules
         How this function works:
         If we do not want to recurse, we just print the symbol and the location of this cell.
@@ -223,6 +224,7 @@ class Cell:
         :type recursive: boolean
         :param recursive: a boolean telling us whether we should recurse this function
         '''
+
         if not recursive:
             self.log(str(symbol),indent=depth)
         if symbol in self.matrix.unary:
