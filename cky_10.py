@@ -196,10 +196,10 @@ class CKY:
 
     def firstTree(self):
         '''
-            Approach based upon pre-order traversal to get the string for nltk.Tree generation.
-            No-recursion strategy is adopted here in the consideration of computation efficiency.
+            Construct the first parse tree based upon utilizing pre-order traversal to generate the string for parsing.
+            Non-recursive approach is adopted for the sake of computational efficiency.
 
-        :return: the first tree if parsing is successful or None.
+        :return: the first parse tree if the parsing is successful and else None.
         '''
         symbols = []
         final_label = self.matrix[0][self.n-1].labels()[0]
