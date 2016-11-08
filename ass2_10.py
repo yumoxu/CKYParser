@@ -114,7 +114,6 @@ for s in ["John gave a book to Mary.",
     print (s, chart2.parse(tokenise(s)))
     chart2.pprint()
 
-
 # Q10
 for s in ["John gave a book to Mary.",
           "John gave Mary a book.",

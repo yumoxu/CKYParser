@@ -196,9 +196,9 @@ class CKY:
 
     def firstTree(self):
         '''
-            front traverse the tree to get the string for nltk.Tree generation.
+            Approach based upon pre-order traversal to get the string for nltk.Tree generation.
 
-        :return: the first tree if the parsing is successful or None.
+        :return: the first tree if parsing is successful or None.
         '''
         symbols = []
         final_label = self.matrix[0][self.n-1].labels()[0]
@@ -207,7 +207,7 @@ class CKY:
             node = final_label
             while node or stack:
                 while node:
-                    if node.lchild() or node.symbol() == '.':
+                    if node.lchild() or node.symbol() in {'.', '?'}:
                         symbols.append('(')
                         symbols.append(str(node.symbol()))
                         if node.lchild():
@@ -251,10 +251,10 @@ class CKY:
                     node.set_rchild_checked(True)
                     node = node.rchild()
 
-        tree_str = ' '.join(symbols)
-        print tree_str
-        return nltk.Tree.fromstring(tree_str)
-
+            tree_str = ' '.join(symbols)
+            return nltk.Tree.fromstring(tree_str)
+        else:
+            return  None
 
 # helper methods from cky_print
 CKY.pprint=CKY_pprint
@@ -359,12 +359,6 @@ class Label:
 
     def rchild(self):
         return self._rchild
-
-    def set_lchild(self, lchild):
-        self._lchild = lchild
-
-    def set_rchild(self, rchild):
-        self._rchild = rchild
 
     def is_rchild_checked(self):
         return self._is_rchild_checked
