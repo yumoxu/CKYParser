@@ -197,6 +197,7 @@ class CKY:
     def firstTree(self):
         '''
             Approach based upon pre-order traversal to get the string for nltk.Tree generation.
+            No-recursion strategy is adopted here in the consideration of computation efficiency.
 
         :return: the first tree if parsing is successful or None.
         '''
